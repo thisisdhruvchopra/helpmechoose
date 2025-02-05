@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Option Picker</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #8b0000, #000000);
+            color: #ffffff;
+        }
+        
+        .page {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: opacity 1s ease-in-out;
+            background: linear-gradient(135deg, #8b0000, #000000);
+        }
+        
+        .hidden {
+            animation: fadeOut 1s forwards;
+        }
+        
+        .visible {
+            animation: fadeIn 1s forwards;
+        }
+
+        .app-container {
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #8b0000, #000000);
+        }
+        
+        input, textarea, button {
+            margin-top: 10px;
+            font-size: 16px;
+            background-color: #220000;
+            color: #ffffff;
+            border: 2px solid #ff0000;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff0000, #8b0000);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #8b0000, #ff0000);
+            transform: scale(1.05);
+        }
+
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            background-color: #220000;
+            padding: 15px 20px;
+            display: inline-block;
+            border-radius: 8px;
+            border: 2px solid #ff0000;
+            min-width: 280px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="page" id="helloPage">Hello! Enter your name</div>
+
+    <div class="page" id="namePage" style="opacity: 0; display: none;">
+        <div>
+            <h2>Enter your name:</h2>
+            <input type="text" id="name" placeholder="Type your name here...">
+            <br>
+            <button onclick="saveName()">Submit</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer" style="opacity: 0; display: none;">
+        <h2>Hi, <span id="userName"></span>!</h2>
+        <h3>Enter Options (one per line):</h3>
+        <textarea id="options" placeholder="Type options here..."></textarea>
+        <br>
+        <button onclick="pickRandomOption()">Pick Random Option</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                document.getElementById("helloPage").classList.add("hidden");
+                setTimeout(() => {
+                    document.getElementById("helloPage").style.display = "none";
+                    showElement("namePage");
+                }, 1000);
+            }, 2000);
+        });
+
+        function saveName() {
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                alert("Please enter a name!");
+                return;
+            }
+
+            localStorage.setItem('username', name);
+            document.getElementById("namePage").classList.add("hidden");
+            setTimeout(() => {
+                document.getElementById("namePage").style.display = "none";
+                document.getElementById("userName").textContent = name;
+                showElement("appContainer");
+            }, 1000);
+        }
+
+        function showElement(id) {
+            let element = document.getElementById(id);
+            element.style.display = "flex";
+            element.classList.add("visible");
+        }
+
+        function pickRandomOption() {
+            let options = document.getElementById('options').value.trim().split('\n').filter(opt => opt.trim() !== "");
+            if (options.length === 0) {
+                document.getElementById('result').textContent = "Please enter some options!";
+                return;
+            }
+
+            let randomIndex = crypto.getRandomValues(new Uint32Array(1))[0] % options.length;
+            let randomOption = options[randomIndex];
+            document.getElementById('result').textContent = "You should go for: " + randomOption;
+        }
+    </script>
+</body>
+</html>
